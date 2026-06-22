@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蔚蓝光标特效</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 320px;
+            background: linear-gradient(135deg, #0a192f 0%, #112240 50%, #1e3a5f 100%);
+            color: #e6f1ff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 13px;
+            padding: 16px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(150, 235, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 16px;
+            background: linear-gradient(90deg, #80dfff, #ccf5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(100, 120, 150, 0.3);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: rgba(150, 235, 255, 0.5);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .section {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(150, 235, 255, 0.1);
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .section-title {
+            color: #96ebff;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .control-item {
+            margin-bottom: 10px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            color: #a8b5d1;
+            font-size: 12px;
+        }
+
+        .control-value {
+            color: #96ebff;
+            font-weight: 500;
+            font-family: monospace;
+        }
+
+        .control-item input[type="range"] {
+            width: 100%;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(150, 235, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #96ebff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(150, 235, 255, 0.5);
+        }
+
+        .reset-btn {
+            width: 100%;
+            padding: 8px;
+            background: rgba(150, 235, 255, 0.1);
+            border: 1px solid rgba(150, 235, 255, 0.3);
+            color: #96ebff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .reset-btn:hover {
+            background: rgba(150, 235, 255, 0.2);
+        }
+
+        .footer {
+            text-align: center;
+            color: #5a6a8a;
+            font-size: 11px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(150, 235, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>蔚蓝光标特效</h1>
+        <label class="toggle-switch">
+            <input type="checkbox" id="enabledToggle" checked>
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+
+    <!-- 点击特效 -->
+    <div class="section">
+        <div class="section-title">🔵 点击特效 · 圆</div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>圆最大半径</span>
+                <span class="control-value" id="val-circleRadius">22</span>
+            </div>
+            <input type="range" id="ctrl-circleRadius" min="10" max="60" value="22" step="1">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>放大时间(ms)</span>
+                <span class="control-value" id="val-circleGrow">60</span>
+            </div>
+            <input type="range" id="ctrl-circleGrow" min="20" max="200" value="60" step="5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>消失时间(ms)</span>
+                <span class="control-value" id="val-circleFade">170</span>
+            </div>
+            <input type="range" id="ctrl-circleFade" min="50" max="500" value="170" step="10">
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">✨ 点击特效 · 弧线</div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>弧线数量</span>
+                <span class="control-value" id="val-arcCount">3</span>
+            </div>
+            <input type="range" id="ctrl-arcCount" min="1" max="8" value="3" step="1">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>每段角度(°)</span>
+                <span class="control-value" id="val-arcDegrees">160</span>
+            </div>
+            <input type="range" id="ctrl-arcDegrees" min="30" max="360" value="160" step="10">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>弧线粗细</span>
+                <span class="control-value" id="val-arcWidth">1.5</span>
+            </div>
+            <input type="range" id="ctrl-arcWidth" min="0.5" max="5" value="1.5" step="0.1">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>柔光强度</span>
+                <span class="control-value" id="val-arcGlow">0.15</span>
+            </div>
+            <input type="range" id="ctrl-arcGlow" min="0" max="0.5" value="0.15" step="0.01">
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">🔺 点击特效 · 三角</div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>三角数量</span>
+                <span class="control-value" id="val-triCount">4</span>
+            </div>
+            <input type="range" id="ctrl-triCount" min="1" max="12" value="4" step="1">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>三角大小</span>
+                <span class="control-value" id="val-triSize">5</span>
+            </div>
+            <input type="range" id="ctrl-triSize" min="2" max="15" value="5" step="0.5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>飞行距离</span>
+                <span class="control-value" id="val-triFlyDist">15</span>
+            </div>
+            <input type="range" id="ctrl-triFlyDist" min="5" max="60" value="15" step="1">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>闪烁频率</span>
+                <span class="control-value" id="val-blinkFreq">0.012</span>
+            </div>
+            <input type="range" id="ctrl-blinkFreq" min="0" max="0.03" value="0.012" step="0.001">
+        </div>
+    </div>
+
+    <!-- 拖尾特效 -->
+    <div class="section">
+        <div class="section-title">🌊 拖尾特效 · 线</div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>拖尾长度</span>
+                <span class="control-value" id="val-trailAge">28</span>
+            </div>
+            <input type="range" id="ctrl-trailAge" min="10" max="60" value="28" step="1">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>起点粗细</span>
+                <span class="control-value" id="val-trailWidth">5</span>
+            </div>
+            <input type="range" id="ctrl-trailWidth" min="1" max="15" value="5" step="0.5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>柔光扩散</span>
+                <span class="control-value" id="val-glowSpread">3.0</span>
+            </div>
+            <input type="range" id="ctrl-glowSpread" min="0" max="10" value="3.0" step="0.5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>柔光强度</span>
+                <span class="control-value" id="val-glowAlpha">0.2</span>
+            </div>
+            <input type="range" id="ctrl-glowAlpha" min="0" max="0.5" value="0.2" step="0.01">
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">🔷 拖尾特效 · 三角</div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>三角最大间距</span>
+                <span class="control-value" id="val-triMaxInt">100</span>
+            </div>
+            <input type="range" id="ctrl-triMaxInt" min="30" max="250" value="100" step="5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>三角最小间距</span>
+                <span class="control-value" id="val-triMinInt">40</span>
+            </div>
+            <input type="range" id="ctrl-triMinInt" min="10" max="150" value="40" step="5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>三角初始大小</span>
+                <span class="control-value" id="val-trailTriSize">13</span>
+            </div>
+            <input type="range" id="ctrl-trailTriSize" min="5" max="25" value="13" step="0.5">
+        </div>
+        <div class="control-item">
+            <div class="control-label">
+                <span>发散速度</span>
+                <span class="control-value" id="val-spreadSpeed">0.85</span>
+            </div>
+            <input type="range" id="ctrl-spreadSpeed" min="0.2" max="2" value="0.85" step="0.05">
+        </div>
+    </div>
+
+    <button class="reset-btn" id="resetBtn">恢复默认设置</button>
+
+    <div class="footer">
+        蔚蓝光标特效 v1.0.0
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
